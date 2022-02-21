@@ -33,23 +33,33 @@ export const userController = {
                 user_login,
                 user_pass,
                 user_nicename,
-                user_email
+                user_email,
+                role
             )
             values(
+                ?,
                 ?,
                 ?,
                 ?,
                 ?
             )
             `
+            const GET_USER_ID = `
+            select id
+            from roles
+            where role=?
+            `
+            const [_rows, _fileds] = await db.execute(GET_USER_ID, ["user"])
             //hashing password....
             // const encryptedPassword = CryptoJS.AES.encrypt(user_pass, process.env.PASSWORD_SECRET).toString();
+
             const encryptedPassword = CryptoJS.MD5(user_pass).toString();
             await db.execute(INSERT_QUERY, [
                 user_login,
                 encryptedPassword,
                 user_nicename,
                 user_email,
+                _rows[0].id
             ])
             return res.status(200).json({
                 msg: 'user created successfully!'
